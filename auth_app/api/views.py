@@ -1,10 +1,12 @@
-from urllib import request, response
+from django.contrib.auth import authenticate, get_user_model
 
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from quiz_management_app.models import User
 from .serializers import RegistrationSerializer
 
 
@@ -22,7 +24,7 @@ class RegistrationView(APIView):
                 'email': saved_account.email,
                 'user_id': saved_account.pk
             }
-            return Response(data)
+            return Response({"detail": "User created successfully!"}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -34,9 +36,18 @@ class CookieTokenObtainPairView(TokenObtainPairView):
     """
 
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
+        try:
+            response = super().post(request, *args, **kwargs)
+        except:
+            return Response(
+                {"detail": "Ungültige Anmeldedaten."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         refresh = response.data.get('refresh')
         access = response.data.get('access')
+        
+
+       
 
         response.set_cookie(
             key='access_token',
@@ -54,8 +65,14 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             samesite='Lax'
         )
 
-        response.data = {"message": "Login successful"}
+        User = get_user_model()
+        user = User.objects.get(username=request.data.get('username'))
+    
+
+
+        response.data = {"detail": "Login successfully!", "user": {"id": user.id, "username": user.username, "email": user.email   }}
         return response
+    
     
 class CookieRefreshView(TokenRefreshView):
     """
@@ -67,17 +84,17 @@ class CookieRefreshView(TokenRefreshView):
         refresh_token = request.COOKIES.get('refresh_token')
         #refresh token nicht im Cookie gefunden
         if refresh_token is None:
-            return Response({"error": "Refresh token not provided"}, status=status.HTTP_400_BAD_REQUEST)   
+            return Response({"detail": "Refresh token not provided"}, status=status.HTTP_401_UNAUTHORIZED)   
         
         serializer =self.get_serializer(data={'refresh': refresh_token})
 
         try:
             serializer.is_valid(raise_exception=True)
         except:    
-            return Response({"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"detail": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED)
         
         access_token = serializer.validated_data.get('access')
-        response = Response({"message": "Token refreshed"})
+        response = Response({"detail": "Token refreshed"})
         response.set_cookie(
             key='access_token',
             value=access_token,
@@ -88,13 +105,13 @@ class CookieRefreshView(TokenRefreshView):
         return response
     
 class CookieDeleteView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     """
     Führt den Logout durch, indem die Access- und Refresh-Token-Cookies gelöscht werden.
     """
 
     def post(self, request, *args, **kwargs):
-        response = Response({"message": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid"})
+        response = Response({"detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid"})
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
         return response
