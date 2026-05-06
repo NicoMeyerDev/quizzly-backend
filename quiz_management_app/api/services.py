@@ -3,15 +3,17 @@ import tempfile
 import json
 import re
 
+
 import whisper
 import yt_dlp
 from dotenv import load_dotenv
 from google import genai
 
 
+
 load_dotenv()
 
-
+    
 def download_audio(url: str) -> str:
     """
     Lädt die Audiospur eines YouTube-Videos herunter und speichert sie temporär.
@@ -19,21 +21,21 @@ def download_audio(url: str) -> str:
     :param url: URL des YouTube-Videos
     :return: Pfad zur heruntergeladenen Audiodatei
     """
-    tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-    filename = tmp_file.name
-    tmp_file.close()
+    tmp_dir = tempfile.mkdtemp()
+    tmp_filename = os.path.join(tmp_dir, "audio")
 
     ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": filename,
+        "format": "bestaudio",
+        "outtmpl": tmp_filename,
         "quiet": True,
         "noplaylist": True,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+        info = ydl.extract_info(url, download=True)
+        ext = info.get("ext", "webm")
 
-    return filename
+    return f"{tmp_filename}.{ext}"
 
 
 def transcribe_audio(file_path: str) -> str:
@@ -87,8 +89,12 @@ The quiz must follow this exact structure:
   "questions": [
     {{
       "question_title": "Question",
-      "question_options": ["A", "B", "C", "D"],
-      "answer": "Correct answer"
+      "answers": [
+        {{"answer_text": "Option A", "is_correct": true}},
+        {{"answer_text": "Option B", "is_correct": false}},
+        {{"answer_text": "Option C", "is_correct": false}},
+        {{"answer_text": "Option D", "is_correct": false}}
+      ]
     }}
   ]
 }}
@@ -115,23 +121,3 @@ Transcript:
         return json.loads(cleaned)
     except json.JSONDecodeError as e:
         raise ValueError(f"Ungültiges JSON von der KI erhalten: {e}")
-
-
-def save_quiz(data: dict, filename: str = "quiz.json") -> None:
-    """
-    Speichert Quiz-Daten als JSON-Datei.
-
-    :param data: Quiz-Daten als Dictionary
-    :param filename: Name der Zieldatei
-    """
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    url = input("YouTube-Link: ")
-
-    audio_path = download_audio(url)
-    transcript = transcribe_audio(audio_path)
-    quiz = generate_quiz(transcript)
-    save_quiz(quiz)
