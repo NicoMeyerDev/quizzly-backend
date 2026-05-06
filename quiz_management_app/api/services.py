@@ -1,3 +1,4 @@
+import glob
 import os
 import tempfile
 import json
@@ -35,8 +36,13 @@ def download_audio(url: str) -> str:
         info = ydl.extract_info(url, download=True)
         ext = info.get("ext", "webm")
 
-    return f"{tmp_filename}.{ext}"
+    
 
+    files = glob.glob(tmp_filename + "*")
+    if not files:
+        raise ValueError("Audio download fehlgeschlagen")
+    
+    return files[0]
 
 def transcribe_audio(file_path: str) -> str:
     """

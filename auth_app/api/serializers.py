@@ -2,11 +2,11 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    repeated_password = serializers.CharField(write_only=True)
+    
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'repeated_password']
+        fields = ['username', 'email', 'password']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -16,11 +16,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
             }
         }
 
-    def validate_repeated_password(self, value):
-        password = self.initial_data.get('password')
-        if password and value and password != value:
-            raise serializers.ValidationError('Passwords do not match')
-        return value
+    def validate(self, data):
+        repeated = self.initial_data.get('confirmed_password')
+        if data.get('password') != repeated:
+            raise serializers.ValidationError({'repeated_password': 'Passwords do not match'})
+        return data
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():

@@ -32,9 +32,13 @@ class QuizViewSet(viewsets.ModelViewSet):
         {"detail": "Ungültige YouTube-URL."},
         status=status.HTTP_400_BAD_REQUEST,
         )
+        match = re.search(r'v=([a-zA-Z0-9_-]{11})', video_url)
+        video_id =match.group(1)
+        clean_url = f"https://www.youtube.com/watch?v={video_id}"
+            
 
         try:
-            audio_path = download_audio(video_url)
+            audio_path = download_audio(clean_url)
             transcript = transcribe_audio(audio_path)
             quiz_data = generate_quiz(transcript)
 
