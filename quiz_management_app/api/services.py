@@ -78,6 +78,7 @@ def generate_quiz(transcript: str) -> dict:
     :raises ValueError: If no API key is available or invalid JSON is returned
     """
     api_key = os.getenv("GEMINI_API_KEY")
+    print("API KEY:", api_key)
 
     if not api_key:
         raise ValueError("GEMINI_API_KEY fehlt. Prüfe die .env Datei.")
@@ -117,7 +118,7 @@ Transcript:
 """
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash-lite",
         contents=prompt,
     )
 
