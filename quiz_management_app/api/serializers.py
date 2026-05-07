@@ -8,14 +8,14 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ['answer_text', 'is_correct', 'created_at', 'updated_at']
 
 class QuestionSerializer(serializers.ModelSerializer):
-    questions_options = serializers.SerializerMethodField()
+    question_options = serializers.SerializerMethodField()
     answer = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
-        fields = ['id', 'question_title', "questions_options", "answer"]
+        fields = ['id', 'question_title', "question_options", "answer"]
 
-    def get_questions_options(self, obj):
+    def get_question_options(self, obj):
         return [answer.answer_text for answer in obj.answers.all()]
 
 
