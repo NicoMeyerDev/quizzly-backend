@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    
+    """Serializer for user registration, including password confirmation and email validation."""
 
     class Meta:
         model = User

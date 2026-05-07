@@ -19,6 +19,8 @@ class QuizViewSet(viewsets.ModelViewSet):
         return Quiz.objects.all()
 
     def create(self, request, *args, **kwargs):
+        """Handles the creation of a new quiz based on a YouTube video URL provided in the request data."""
+        
         video_url = request.data.get("url")
 
         if not video_url:

@@ -17,10 +17,10 @@ load_dotenv()
     
 def download_audio(url: str) -> str:
     """
-    Lädt die Audiospur eines YouTube-Videos herunter und speichert sie temporär.
+    Downloads the audio track of a YouTube video and saves it temporarily.
 
-    :param url: URL des YouTube-Videos
-    :return: Pfad zur heruntergeladenen Audiodatei
+    :param url: URL of the YouTube video
+    :return: Path to the downloaded audio file
     """
     tmp_dir = tempfile.mkdtemp()
     tmp_filename = os.path.join(tmp_dir, "audio")
@@ -46,10 +46,10 @@ def download_audio(url: str) -> str:
 
 def transcribe_audio(file_path: str) -> str:
     """
-    Wandelt eine Audiodatei mittels Whisper in Text um.
+    Transcribes an audio file into text using Whisper.
 
-    :param file_path: Pfad zur Audiodatei
-    :return: Transkribierter Textinhalt
+    :param file_path: Path to the audio file
+    :return: Transcribed text content
     """
     model = whisper.load_model("turbo")
     result = model.transcribe(file_path)
@@ -58,10 +58,10 @@ def transcribe_audio(file_path: str) -> str:
 
 def clean_output(text: str) -> str:
     """
-    Entfernt Markdown-Codeblöcke aus der KI-Ausgabe, um gültiges JSON zu extrahieren.
+    Removes Markdown code blocks from the AI output to extract valid JSON.
 
-    :param text: Rohtext aus der KI-Antwort
-    :return: Bereinigter Text ohne Markdown-Syntax
+    :param text: aw text from the AI response
+    :return: Cleaned text without Markdown syntax
     """
     text = text.strip()
     text = re.sub(r"^```(?:json)?\s*", "", text)
@@ -71,11 +71,11 @@ def clean_output(text: str) -> str:
 
 def generate_quiz(transcript: str) -> dict:
     """
-    Erstellt basierend auf einem Transkript ein Quiz im JSON-Format über die Gemini API.
+    Creates a quiz in JSON format based on a transcript using the Gemini API.
 
-    :param transcript: Transkribierter Text des Videos
-    :return: Quiz-Daten als Python-Dictionary
-    :raises ValueError: Wenn kein API-Key vorhanden ist oder ungültiges JSON zurückgegeben wird
+    :param transcript: Transcribed text of the video
+    :return: Quiz data as a Python dictionary
+    :raises ValueError: If no API key is available or invalid JSON is returned
     """
     api_key = os.getenv("GEMINI_API_KEY")
 

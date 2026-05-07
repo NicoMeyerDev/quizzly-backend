@@ -28,11 +28,11 @@ class RegistrationView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-      #login view, die JWT-Token in Cookies speichert  
+       
 class CookieTokenObtainPairView(TokenObtainPairView):
     """
-    Führt den Login durch, erzeugt Access- und Refresh-Token
-    und speichert beide als HttpOnly-Cookies in der Response.
+    Handles the login process, generates access and refresh tokens,
+    and stores both as HttpOnly cookies in the response.
     """
 
     def post(self, request, *args, **kwargs):
@@ -76,8 +76,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
     
 class CookieRefreshView(TokenRefreshView):
     """
-    Aktualisiert den Access Token mithilfe eines im Cookie gespeicherten Refresh Tokens
-    und setzt den neuen Access Token als HttpOnly-Cookie in der Response.
+    Refreshes the access token using a refresh token stored in a cookie
+    and sets the new access token as an HttpOnly cookie in the response.
     """
 
     def post(self, request, *args, **kwargs):
@@ -107,7 +107,7 @@ class CookieRefreshView(TokenRefreshView):
 class CookieDeleteView(APIView):
     permission_classes = [IsAuthenticated]
     """
-    Führt den Logout durch, indem die Access- und Refresh-Token-Cookies gelöscht werden.
+    Handles the logout process by deleting the access and refresh token cookies.
     """
 
     def post(self, request, *args, **kwargs):
