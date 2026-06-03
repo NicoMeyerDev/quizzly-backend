@@ -4,6 +4,12 @@ Quizly is an AI-powered backend that transforms YouTube videos into interactive 
 Simply provide a YouTube URL, and the app will automatically generate a 10-question quiz
 based on the video content — perfect for learning, reviewing, or just having fun.
 
+## 🔗 Related Repositories
+
+| Repository   | Description                                      |
+| ------------ | ------------------------------------------------ |
+| **Frontend** | https://github.com/NicoMeyerDev/quizzly-frontend |
+| **Backend**  | This repository                                  |
 
 ## 🛠️ Requirements
 
